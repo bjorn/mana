@@ -122,6 +122,7 @@ if(WIN32)
           $ENV{MINGW_PREFIX}/bin/SDL2_image.dll
           $ENV{MINGW_PREFIX}/bin/SDL2_mixer.dll
           $ENV{MINGW_PREFIX}/bin/SDL2_net.dll
+          $ENV{MINGW_PREFIX}/bin/libenet-7.dll
           $ENV{MINGW_PREFIX}/bin/SDL2_ttf.dll
           $ENV{MINGW_PREFIX}/bin/libxml2-16.dll
           $ENV{MINGW_PREFIX}/bin/zlib1.dll
