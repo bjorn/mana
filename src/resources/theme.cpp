@@ -641,12 +641,19 @@ void Theme::readSkinStateNode(XML::Node node, Skin &skin) const
 }
 
 template<>
-inline void fromString(const char *str, FillMode &value)
+inline bool fromString(const char *str, FillMode &value)
 {
     if (strcmp(str, "repeat") == 0)
+    {
         value = FillMode::Repeat;
-    else if (strcmp(str, "stretch") == 0)
+        return true;
+    }
+    if (strcmp(str, "stretch") == 0)
+    {
         value = FillMode::Stretch;
+        return true;
+    }
+    return false;
 }
 
 void Theme::readSkinStateImgNode(XML::Node node, SkinState &state) const
@@ -715,14 +722,14 @@ void Theme::readSkinStateImgNode(XML::Node node, SkinState &state) const
 }
 
 template<>
-inline void fromString(const char *str, gcn::Color &value)
+inline bool fromString(const char *str, gcn::Color &value)
 {
     if (strlen(str) < 7 || str[0] != '#')
     {
     error:
         Log::info("Error, invalid theme color palette: %s", str);
         value = gcn::Color(0, 0, 0);
-        return;
+        return false;
     }
 
     int v = 0;
@@ -744,6 +751,7 @@ inline void fromString(const char *str, gcn::Color &value)
     }
 
     value = gcn::Color(v);
+    return true;
 }
 
 void Theme::readIconNode(XML::Node node)

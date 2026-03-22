@@ -21,9 +21,13 @@
 
 #pragma once
 
+#include <charconv>
+#include <cstdlib>
+#include <cstring>
 #include <optional>
 #include <sstream>
 #include <string>
+#include <system_error>
 #include <vector>
 
 /**
@@ -157,68 +161,97 @@ template<typename T, typename Enable = void>
 struct FromString;
 
 template<typename T>
-void fromString(const char *str, T &value)
+bool fromString(const char *str, T &value)
 {
-    FromString<T>()(str, value);
+    return FromString<T>()(str, value);
 }
 
-inline void fromString(const char *str, std::string &value)
-{
-    value = str;
-}
-
-inline void fromString(const char *str, std::string_view &value)
+inline bool fromString(const char *str, std::string &value)
 {
     value = str;
+    return true;
 }
 
-inline void fromString(const char *str, int &value)
+inline bool fromString(const char *str, std::string_view &value)
 {
-    value = atoi(str);
+    value = str;
+    return true;
 }
 
-inline void fromString(const char *str, unsigned &value)
+inline bool fromString(const char *str, int &value)
 {
-    value = strtoul(str, nullptr, 10);
+    const char *end = str + std::strlen(str);
+    return std::from_chars(str, end, value).ec == std::errc();
 }
 
-inline void fromString(const char *str, unsigned short &value)
+inline bool fromString(const char *str, unsigned &value)
 {
-    value = static_cast<unsigned short>(strtoul(str, nullptr, 10));
+    const char *end = str + std::strlen(str);
+    return std::from_chars(str, end, value).ec == std::errc();
 }
 
-inline void fromString(const char *str, float &value)
+inline bool fromString(const char *str, unsigned short &value)
 {
-    value = strtof(str, nullptr);
+    const char *end = str + std::strlen(str);
+    return std::from_chars(str, end, value).ec == std::errc();
 }
 
-inline void fromString(const char *str, double &value)
+#if __cpp_lib_to_chars >= 201611L
+inline bool fromString(const char *str, float &value)
 {
-    value = atof(str);
+    const char *end = str + std::strlen(str);
+    return std::from_chars(str, end, value, std::chars_format::general).ec == std::errc();
 }
 
-inline void fromString(const char *str, bool &value)
+inline bool fromString(const char *str, double &value)
+{
+    const char *end = str + std::strlen(str);
+    return std::from_chars(str, end, value, std::chars_format::general).ec == std::errc();
+}
+#else
+inline bool fromString(const char *str, float &value)
+{
+    char *end;
+    value = std::strtof(str, &end);
+    return end != str && *end == '\0';
+}
+
+inline bool fromString(const char *str, double &value)
+{
+    char *end;
+    value = std::strtod(str, &end);
+    return end != str && *end == '\0';
+}
+#endif
+
+inline bool fromString(const char *str, bool &value)
 {
     value = getBoolFromString(str);
+    return true;
 }
 
-void fromString(const char *str, std::vector<int> &value);
+bool fromString(const char *str, std::vector<int> &value);
 
 template<typename T>
 struct FromString<T, std::enable_if_t<std::is_enum_v<T>>>
 {
-    void operator() (const char *str, T &value)
+    bool operator() (const char *str, T &value)
     {
-        fromString(str, reinterpret_cast<std::underlying_type_t<T>&>(value));
+        return fromString(str, reinterpret_cast<std::underlying_type_t<T>&>(value));
     }
 };
 
 template<typename T>
 struct FromString<std::optional<T>>
 {
-    void operator() (const char *str, std::optional<T> &value)
+    bool operator() (const char *str, std::optional<T> &value)
     {
-        fromString(str, value.emplace());
+        T tmp{};
+        if (fromString(str, tmp)) {
+            value = std::move(tmp);
+            return true;
+        }
+        return false;
     }
 };
 

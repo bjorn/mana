@@ -129,10 +129,8 @@ namespace XML
     inline bool Node::attribute(const char *name, T &value) const
     {
         if (const char *str = attribute(name))
-        {
-            fromString(str, value);
-            return true;
-        }
+            return fromString(str, value);
+
         return false;
     }
 

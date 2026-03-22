@@ -151,7 +151,7 @@ bool getBoolFromString(std::string text, bool def)
 }
 
 // Overload for std::vector<int> to parse comma-separated integers
-void fromString(const char *str, std::vector<int> &value)
+bool fromString(const char *str, std::vector<int> &value)
 {
     value.clear();
 
@@ -174,6 +174,8 @@ void fromString(const char *str, std::vector<int> &value)
             ++p; // skip invalid character to avoid infinite loop
         }
     }
+
+    return true;
 }
 
 std::string autocomplete(const std::vector<std::string> &candidates,
