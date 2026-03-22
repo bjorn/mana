@@ -8,9 +8,9 @@ pkg_check_modules(SDL2 REQUIRED
 find_package(PhysFS REQUIRED)
 find_package(CURL REQUIRED)
 find_package(LibXml2 REQUIRED)
-find_package(PNG REQUIRED)
 find_package(Gettext REQUIRED)
 find_package(Intl REQUIRED)
+find_package(ZLIB REQUIRED)
 
 if(CMAKE_COMPILER_IS_GNUCXX)
   # Help getting compilation warnings
@@ -73,7 +73,6 @@ endif(WITH_OPENGL)
 include_directories(
   ${CMAKE_CURRENT_SOURCE_DIR}
   ${SDL2_INCLUDE_DIRS}
-  ${PNG_INCLUDE_DIR}
   ${PHYSFS_INCLUDE_DIR}
   ${LIBXML2_INCLUDE_DIR}
   ${ENET_INCLUDE_DIR}
@@ -336,8 +335,6 @@ set(SRCS
     resources/image.h
     resources/imageset.h
     resources/imageset.cpp
-    resources/imagewriter.cpp
-    resources/imagewriter.h
     resources/itemdb.cpp
     resources/itemdb.h
     resources/iteminfo.h
@@ -628,13 +625,13 @@ target_link_libraries(
   mana
   PRIVATE ${ENET_LIBRARIES}
           ${SDL2_LINK_LIBRARIES}
-          ${PNG_LIBRARIES}
           ${PHYSFS_LIBRARY}
-	  CURL::libcurl
+          CURL::libcurl
           ${LIBXML2_LIBRARIES}
           ${GUICHAN_LIBRARIES}
           ${OPENGL_LIBRARIES}
-          ${Intl_LIBRARIES})
+          ${Intl_LIBRARIES}
+          ZLIB::ZLIB)
 
 # Link with ws2_32 when using "system" ENet on Windows
 if(WIN32 AND ENABLE_MANASERV AND USE_SYSTEM_ENET)

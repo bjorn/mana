@@ -72,7 +72,6 @@
 #include "net/net.h"
 #include "net/playerhandler.h"
 
-#include "resources/imagewriter.h"
 #include "resources/mapreader.h"
 
 #include "utils/filesystem.h"
@@ -80,6 +79,8 @@
 #include "utils/mkdir.h"
 
 #include <guichan/focushandler.hpp>
+
+#include <SDL_image.h>
 
 #include <fstream>
 #include <sstream>
@@ -320,7 +321,7 @@ static bool saveScreenshot()
     }
     while (!found);
 
-    const bool success = ImageWriter::writePNG(screenshot, filename.str());
+    const bool success = IMG_SavePNG(screenshot, filename.str().c_str()) == 0;
 
     if (success)
     {
@@ -338,7 +339,7 @@ static bool saveScreenshot()
     else
     {
         serverNotice(_("Saving screenshot failed!"));
-        Log::error("Could not save screenshot.");
+        Log::error("Could not save screenshot: %s", IMG_GetError());
     }
 
     SDL_FreeSurface(screenshot);
